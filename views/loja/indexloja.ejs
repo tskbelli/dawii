@@ -1,0 +1,103 @@
+<%- include('cabecalho.ejs') %>
+
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-dark">Explorar Catálogo</h1>
+    <p class="lead text-muted">Encontre os clássicos que faltam na sua coleção.</p>
+</div>
+
+<div class="row g-4">
+    <% if(discos.length === 0) { %>
+        <div class="col-12 text-center">
+            <div class="alert alert-light border shadow-sm">
+                Nenhum disco disponível no momento. Volte em breve!
+            </div>
+        </div>
+    <% } %>
+
+    <% for(const disco of discos) { %>
+        <% 
+           let estado = "disponivel";
+           // Verifica se o ID do disco está nos arrays (convertendo para string para garantir a comparação)
+           if (meusDiscos && meusDiscos.includes(disco.id)) estado = "comprado";
+           else if (carrinho && carrinho.includes(disco.id)) estado = "carrinho";
+        %>
+
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm bg-light-container p-0 overflow-hidden">
+                <!-- Imagem / Capa -->
+                <div class="position-relative" style="height: 250px; background-color: #f8f9fa;">
+                    <% if(disco.img) { %>
+                        <img src="<%= disco.img %>" class="w-100 h-100 object-fit-cover" alt="<%= disco.titulo %>">
+                    <% } else { %>
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center text-secondary">
+                            <i class="bi bi-disc fs-1 opacity-25"></i>
+                        </div>
+                    <% } %>
+                    
+                    <!-- Badge de Gênero -->
+                    <span class="position-absolute top-0 end-0 m-2 badge badge-green rounded-pill shadow-sm">
+                        <%= disco.genero %>
+                    </span>
+                </div>
+
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-dark fw-bold mb-1 text-truncate"><%= disco.titulo %></h5>
+                    <p class="card-text text-muted small mb-2"><%= disco.artista %></p>
+                    <p class="card-text text-secondary small mb-auto"><i class="bi bi-calendar"></i> <%= disco.ano %></p>
+                    
+                    <hr class="my-3 opacity-25">
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fs-5 fw-bold text-success">R$ <%= disco.preco.toFixed(2) %></span>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <% if(estado === 'comprado') { %>
+                        <button class="btn btn-secondary w-100" disabled>
+                            <i class="bi bi-check-circle-fill"></i> Na Coleção
+                        </button>
+                    <% } else if(estado === 'carrinho') { %>
+                        <a href="/loja/carrinho" class="btn btn-warning text-white w-100">
+                            <i class="bi bi-cart-check-fill"></i> Ver Carrinho
+                        </a>
+                    <% } else { %>
+                        <!-- Botão que abre Modal de Detalhes -->
+                        <button type="button" class="btn btn-outline-secondary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#modalDisco<%= disco._id %>">
+                            Detalhes
+                        </button>
+                        <a href="/loja/adicionar/<%= disco._id %>" class="btn btn-success w-100">
+                            <i class="bi bi-cart-plus"></i> Adicionar
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Detalhes -->
+        <div class="modal fade" id="modalDisco<%= disco._id %>" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header border-bottom-0">
+                        <h5 class="modal-title fw-bold"><%= disco.titulo %></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <% if(disco.img) { %>
+                            <img src="<%= disco.img %>" class="img-fluid rounded shadow mb-3" style="max-height: 300px;">
+                        <% } %>
+                        <h4 class="mb-0"><%= disco.artista %></h4>
+                        <p class="text-muted"><%= disco.ano %> • <%= disco.genero %></p>
+                        <h3 class="text-success fw-bold mt-3">R$ <%= disco.preco.toFixed(2) %></h3>
+                    </div>
+                    <div class="modal-footer border-top-0 justify-content-center pb-4">
+                        <a href="/loja/adicionar/<%= disco._id %>" class="btn btn-success btn-lg px-5">
+                            Comprar Agora
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<%- include('rodape.ejs') %>
